@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, CalendarHeart } from "lucide-react";
 import { createBooking, getBookedSlots } from "@/lib/public.functions";
 import type { Service, Staff } from "@/lib/types";
 
@@ -124,6 +124,9 @@ export function Booking({ services, staff }: { services: Service[]; staff: Staff
     <section id="book" className="bg-cream py-24">
       <div className="mx-auto max-w-3xl px-6">
         <div className="text-center">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-secondary text-primary">
+            <CalendarHeart className="h-5 w-5" />
+          </div>
           <p className="text-xs uppercase tracking-[0.4em] text-primary">Booking</p>
           <h2 className="mt-3 font-serif text-4xl md:text-5xl">Reserve Your Appointment</h2>
           <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-accent to-transparent" />
