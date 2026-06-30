@@ -16,6 +16,7 @@ import {
   updateBusinessInfo,
 } from "@/lib/admin.functions";
 import { listServices, listStaff, getBusinessInfo } from "@/lib/public.functions";
+import { MessageCircle } from "lucide-react";
 import type { Booking, Service, Staff, BusinessInfo } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -113,8 +114,10 @@ function AdminPage() {
 function BookingsView() {
   const fn = useServerFn(listBookings);
   const update = useServerFn(updateBookingStatus);
+  const bizFn = useServerFn(getBusinessInfo);
   const qc = useQueryClient();
   const q = useQuery({ queryKey: ["bookings"], queryFn: () => fn() });
+  const bizQ = useQuery({ queryKey: ["biz-whatsapp"], queryFn: () => bizFn() });
   const [status, setStatus] = useState<string>("all");
 
   const m = useMutation({
@@ -127,6 +130,27 @@ function BookingsView() {
     if (status === "all") return data;
     return data.filter((b) => b.status === status);
   }, [q.data, status]);
+
+  function clientWaLink(b: Booking) {
+    const dateStr = format(new Date(b.booking_date), "MMM d, yyyy");
+    const msg = `Hi ${b.name}, your appointment for *${b.service_name}* on ${dateStr} at ${b.booking_time.slice(
+      0,
+      5,
+    )} with ${b.staff_name ?? "our team"} is confirmed at Makeover By Priti Academy & Salon. See you then! 💇‍♀️`;
+    const phone = b.phone.replace(/[^0-9]/g, "");
+    return `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+  }
+
+  function ownerWaLink(b: Booking) {
+    const dateStr = format(new Date(b.booking_date), "MMM d, yyyy");
+    const msg = `New confirmed booking: ${b.name} (${b.phone}) — ${b.service_name} on ${dateStr} at ${b.booking_time.slice(
+      0,
+      5,
+    )} with ${b.staff_name ?? "—"}.`;
+    const ownerPhone = (bizQ.data as any)?.whatsapp?.replace(/[^0-9]/g, "");
+    if (!ownerPhone) return null;
+    return `https://wa.me/${ownerPhone}?text=${encodeURIComponent(msg)}`;
+  }
 
   return (
     <div>
@@ -189,16 +213,42 @@ function BookingsView() {
                   </span>
                 </td>
                 <td className="p-3 text-right">
-                  <select
-                    value={b.status}
-                    onChange={(e) => m.mutate({ id: b.id, status: e.target.value })}
-                    className="rounded-md border border-border bg-background px-2 py-1 text-xs"
-                  >
-                    <option value="pending">Pending</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
+                  <div className="flex items-center justify-end gap-2">
+                    {b.status === "confirmed" && (
+                      <>
+                        <a
+                          href={clientWaLink(b)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Send confirmation to client on WhatsApp"
+                          className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-[#25D366]/10 text-[#25D366] hover:bg-[#25D366]/20"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </a>
+                        {ownerWaLink(b) && (
+                          <a
+                            href={ownerWaLink(b)!}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            title="Send a copy to my own WhatsApp"
+                            className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-secondary text-primary hover:bg-secondary/70"
+                          >
+                            <MessageCircle className="h-4 w-4" />
+                          </a>
+                        )}
+                      </>
+                    )}
+                    <select
+                      value={b.status}
+                      onChange={(e) => m.mutate({ id: b.id, status: e.target.value })}
+                      className="rounded-md border border-border bg-background px-2 py-1 text-xs"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="completed">Completed</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                  </div>
                 </td>
               </tr>
             ))}
