@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
-import { getBusinessInfo, listServices, listStaff } from "@/lib/public.functions";
+import { getBusinessInfo, listServices, listStaff, listGalleryImages } from "@/lib/public.functions";
 import { Header } from "@/components/site/Header";
 import { Hero } from "@/components/site/Hero";
 import { About } from "@/components/site/About";
@@ -15,6 +15,7 @@ import { MobileBar } from "@/components/site/MobileBar";
 const bizQO = queryOptions({ queryKey: ["business"], queryFn: () => getBusinessInfo() });
 const servicesQO = queryOptions({ queryKey: ["services"], queryFn: () => listServices() });
 const staffQO = queryOptions({ queryKey: ["staff"], queryFn: () => listStaff() });
+const galleryQO = queryOptions({ queryKey: ["gallery"], queryFn: () => listGalleryImages() });
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -38,6 +39,7 @@ export const Route = createFileRoute("/")({
       context.queryClient.ensureQueryData(bizQO),
       context.queryClient.ensureQueryData(servicesQO),
       context.queryClient.ensureQueryData(staffQO),
+      context.queryClient.ensureQueryData(galleryQO),
     ]);
   },
   errorComponent: ({ error }) => (
@@ -56,6 +58,7 @@ function Index() {
   const { data: biz } = useSuspenseQuery(bizQO);
   const { data: services } = useSuspenseQuery(servicesQO);
   const { data: staff } = useSuspenseQuery(staffQO);
+  const { data: gallery } = useSuspenseQuery(galleryQO);
   if (!biz) return null;
   return (
     <main className="pb-16 md:pb-0">
@@ -63,7 +66,7 @@ function Index() {
       <Hero biz={biz} />
       <About />
       <Services services={services} />
-      <Gallery />
+      <Gallery images={gallery} />
       <Booking services={services} staff={staff} />
       <Reviews biz={biz} />
       <Contact biz={biz} />

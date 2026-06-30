@@ -29,6 +29,17 @@ export const listServices = createServerFn({ method: "GET" }).handler(async () =
   return data ?? [];
 });
 
+export const listGalleryImages = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = publicClient();
+  const { data, error } = await sb
+    .from("gallery_images")
+    .select("*")
+    .eq("active", true)
+    .order("sort_order");
+  if (error) throw new Error(error.message);
+  return data ?? [];
+});
+
 export const listStaff = createServerFn({ method: "GET" }).handler(async () => {
   const sb = publicClient();
   const { data, error } = await sb
@@ -39,6 +50,7 @@ export const listStaff = createServerFn({ method: "GET" }).handler(async () => {
   if (error) throw new Error(error.message);
   return data ?? [];
 });
+
 
 const bookedSlotsInput = z.object({
   staffId: z.string().uuid(),

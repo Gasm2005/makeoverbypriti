@@ -18,9 +18,11 @@ import {
   listExpenses,
   upsertExpense,
   deleteExpense,
+  upsertGalleryImage,
+  deleteGalleryImage,
 } from "@/lib/admin.functions";
-import { listServices, listStaff, getBusinessInfo } from "@/lib/public.functions";
-import { MessageCircle, IndianRupee, Trash2 } from "lucide-react";
+import { listServices, listStaff, getBusinessInfo, listGalleryImages } from "@/lib/public.functions";
+import { MessageCircle, IndianRupee, Trash2, Image as ImageIcon } from "lucide-react";
 import type { Booking, Service, Staff, BusinessInfo } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -34,9 +36,9 @@ function AdminPage() {
   const claimFn = useServerFn(claimFirstAdmin);
   const qc = useQueryClient();
   const adminQ = useQuery({ queryKey: ["is-admin"], queryFn: () => isAdminFn() });
-  const [tab, setTab] = useState<"bookings" | "services" | "staff" | "business" | "finance">(
-    "bookings",
-  );
+  const [tab, setTab] = useState<
+    "bookings" | "services" | "staff" | "business" | "finance" | "gallery"
+  >("bookings");
 
   const claim = useMutation({
     mutationFn: () => claimFn(),
@@ -91,7 +93,8 @@ function AdminPage() {
           </button>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-6">
-          {(["bookings", "services", "staff", "business", "finance"] as const).map((t) => (
+          {(["bookings", "services", "staff", "gallery", "business", "finance"] as const).map(
+            (t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -111,6 +114,7 @@ function AdminPage() {
         {tab === "bookings" && <BookingsView />}
         {tab === "services" && <ServicesView />}
         {tab === "staff" && <StaffView />}
+        {tab === "gallery" && <GalleryView />}
         {tab === "business" && <BusinessView />}
         {tab === "finance" && <FinanceView />}
       </main>
@@ -649,6 +653,98 @@ function FinanceView() {
             )}
           </tbody>
         </table>
+      </div>
+    </div>
+  );
+}
+
+function GalleryView() {
+  const fn = useServerFn(listGalleryImages);
+  const upsertFn = useServerFn(upsertGalleryImage);
+  const deleteFn = useServerFn(deleteGalleryImage);
+  const qc = useQueryClient();
+
+  const q = useQuery({ queryKey: ["gallery"], queryFn: () => fn() });
+  const images = (q.data ?? []) as any[];
+
+  const addM = useMutation({
+    mutationFn: (vars: any) => upsertFn({ data: vars }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gallery"] }),
+  });
+  const delM = useMutation({
+    mutationFn: (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["gallery"] }),
+  });
+
+  function handleAdd(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    addM.mutate({
+      image_url: form.get("image_url"),
+      label: form.get("label") || "",
+      sort_order: images.length,
+      active: true,
+    });
+    e.currentTarget.reset();
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <h3 className="font-serif text-lg">Add Photo</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Paste a public image link (e.g. from your phone via Google Photos / Imgur, or Instagram).
+        </p>
+        <form onSubmit={handleAdd} className="mt-4 grid gap-3 sm:grid-cols-3">
+          <input
+            type="url"
+            name="image_url"
+            placeholder="https://... image link"
+            required
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm sm:col-span-2"
+          />
+          <input
+            type="text"
+            name="label"
+            placeholder="Label (e.g. Bridal Look)"
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm"
+          />
+          <button
+            disabled={addM.isPending}
+            className="rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground disabled:opacity-60 sm:col-span-3 sm:w-fit"
+          >
+            {addM.isPending ? "Adding…" : "Add Photo"}
+          </button>
+        </form>
+        {addM.error && (
+          <p className="mt-2 text-sm text-destructive">{(addM.error as any).message}</p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {images.map((img) => (
+          <div
+            key={img.id}
+            className="group relative aspect-square overflow-hidden rounded-xl border border-border bg-secondary"
+          >
+            <img src={img.image_url} alt={img.label} className="h-full w-full object-cover" />
+            <div className="absolute inset-0 flex items-end justify-between bg-gradient-to-t from-black/60 to-transparent p-2">
+              <span className="text-xs text-white">{img.label}</span>
+              <button
+                onClick={() => delM.mutate(img.id)}
+                className="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white/90 text-red-700 opacity-0 transition group-hover:opacity-100"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        ))}
+        {images.length === 0 && (
+          <div className="col-span-full rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
+            <ImageIcon className="mx-auto mb-2 h-6 w-6" />
+            No photos added yet
+          </div>
+        )}
       </div>
     </div>
   );

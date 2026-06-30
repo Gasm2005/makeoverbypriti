@@ -195,6 +195,36 @@ export const deleteExpense = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
+export const upsertGalleryImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        id: z.string().uuid().optional(),
+        image_url: z.string().min(1),
+        label: z.string().optional().default(""),
+        sort_order: z.number().int().default(0),
+        active: z.boolean().default(true),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("gallery_images").upsert(data);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
+export const deleteGalleryImage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { error } = await context.supabase.from("gallery_images").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
 export const updateBusinessInfo = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) =>
