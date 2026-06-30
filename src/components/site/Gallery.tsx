@@ -1,9 +1,7 @@
+import bridalLook from "@/assets/hero-bride.jpg";
+
 const tiles = [
-  {
-    src: "https://plus.unsplash.com/premium_photo-1724762178439-1f93ad3f3cb6?q=80&w=1104&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    label: "Bridal Look",
-    big: true,
-  },
+  { src: bridalLook, label: "Bridal Look" },
   {
     src: "https://images.unsplash.com/photo-1550005869-5fca7db35ddb?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
     label: "Glam Makeup",
@@ -32,13 +30,12 @@ export function Gallery() {
           <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-accent to-transparent" />
         </div>
 
-        <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
-          {tiles.map(({ src, label, big }, i) => (
+        {/* Simple uniform grid — no spanning, so it never breaks on odd counts */}
+        <div className="mt-12 grid grid-cols-2 gap-4 sm:grid-cols-3">
+          {tiles.map(({ src, label }, i) => (
             <div
               key={i}
-              className={`group relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#1A1A1A] shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg ${
-                big ? "md:col-span-2 md:row-span-2 md:aspect-auto" : ""
-              }`}
+              className="group relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#1A1A1A] shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg"
             >
               <img
                 src={src}

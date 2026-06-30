@@ -1,4 +1,4 @@
-import { Star, Phone, Sparkles, Crown, Scissors } from "lucide-react";
+import { Star, Phone } from "lucide-react";
 import heroBride from "@/assets/hero-bride.jpg";
 import type { BusinessInfo } from "@/lib/types";
 
@@ -78,17 +78,8 @@ export function Hero({ biz }: { biz: BusinessInfo }) {
           </div>
         </div>
 
-        {/* Right: decorative badge / emblem instead of a stock photo */}
-        <div className="relative hidden items-center justify-center md:flex">
-          <div className="absolute h-72 w-72 rounded-full border border-gold/25" />
-          <div className="absolute h-56 w-56 rounded-full border border-gold/35" />
-          <div className="relative flex h-44 w-44 flex-col items-center justify-center gap-3 rounded-full bg-gradient-to-br from-[#B76E79]/25 to-[#D4AF7A]/15 backdrop-blur-sm">
-            <Crown className="h-9 w-9 text-gold" />
-            <Scissors className="h-6 w-6 text-cream/70" />
-          </div>
-          <Sparkles className="absolute -right-2 top-6 h-7 w-7 text-gold/50" />
-          <Sparkles className="absolute -left-4 bottom-10 h-5 w-5 text-gold/40" />
-        </div>
+        {/* Right column intentionally left empty — the real photo shows through here */}
+        <div aria-hidden="true" />
       </div>
 
       <p className="absolute bottom-6 left-6 z-10 text-xs uppercase tracking-[0.3em] text-cream/50">
