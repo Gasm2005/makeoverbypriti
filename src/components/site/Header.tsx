@@ -23,19 +23,14 @@ export function Header({ biz }: { biz: BusinessInfo }) {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+      className={`fixed inset-x-0 top-0 z-50 border-b transition-all duration-300 ${
         scrolled
-          ? "bg-cream/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-cream/80"
-          : "bg-transparent"
+          ? "border-cream/10 bg-[#1A1A1A]/90 shadow-md backdrop-blur-md"
+          : "border-cream/5 bg-[#1A1A1A]/40 backdrop-blur-sm"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <a
-          href="#top"
-          className={`font-serif text-lg tracking-wide transition md:text-xl ${
-            scrolled ? "text-charcoal" : "text-cream"
-          }`}
-        >
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+        <a href="#top" className="font-serif text-lg tracking-wide text-cream md:text-xl">
           {biz.name}
         </a>
 
@@ -44,21 +39,17 @@ export function Header({ biz }: { biz: BusinessInfo }) {
             <a
               key={link.href}
               href={link.href}
-              className={`text-sm font-medium tracking-wide transition hover:text-primary ${
-                scrolled ? "text-charcoal/80" : "text-cream/90"
-              }`}
+              className="text-sm font-medium tracking-wide text-cream/80 transition hover:text-gold"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
           <a
             href={`tel:${biz.phone}`}
-            className={`inline-flex items-center gap-1.5 text-sm font-medium transition ${
-              scrolled ? "text-charcoal/80" : "text-cream/90"
-            }`}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-cream/80 transition hover:text-gold"
           >
             <Phone className="h-3.5 w-3.5" /> {biz.phone}
           </a>
@@ -73,23 +64,21 @@ export function Header({ biz }: { biz: BusinessInfo }) {
         <button
           aria-label="Toggle menu"
           onClick={() => setOpen((v) => !v)}
-          className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition md:hidden ${
-            scrolled ? "text-charcoal" : "text-cream"
-          }`}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-cream md:hidden"
         >
           {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
       </div>
 
       {open && (
-        <div className="border-t border-border/60 bg-cream px-6 py-4 md:hidden">
+        <div className="border-t border-cream/10 bg-[#1A1A1A] px-6 py-4 md:hidden">
           <nav className="flex flex-col gap-4">
             {navLinks.map((link) => (
               <a
                 key={link.href}
                 href={link.href}
                 onClick={() => setOpen(false)}
-                className="text-sm font-medium tracking-wide text-charcoal/80"
+                className="text-sm font-medium tracking-wide text-cream/80"
               >
                 {link.label}
               </a>
