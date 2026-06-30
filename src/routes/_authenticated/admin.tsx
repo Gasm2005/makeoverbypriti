@@ -14,9 +14,13 @@ import {
   upsertStaff,
   deleteStaff,
   updateBusinessInfo,
+  updateBookingAmount,
+  listExpenses,
+  upsertExpense,
+  deleteExpense,
 } from "@/lib/admin.functions";
 import { listServices, listStaff, getBusinessInfo } from "@/lib/public.functions";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, IndianRupee, Trash2 } from "lucide-react";
 import type { Booking, Service, Staff, BusinessInfo } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -30,7 +34,9 @@ function AdminPage() {
   const claimFn = useServerFn(claimFirstAdmin);
   const qc = useQueryClient();
   const adminQ = useQuery({ queryKey: ["is-admin"], queryFn: () => isAdminFn() });
-  const [tab, setTab] = useState<"bookings" | "services" | "staff" | "business">("bookings");
+  const [tab, setTab] = useState<"bookings" | "services" | "staff" | "business" | "finance">(
+    "bookings",
+  );
 
   const claim = useMutation({
     mutationFn: () => claimFn(),
@@ -85,7 +91,7 @@ function AdminPage() {
           </button>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-6">
-          {(["bookings", "services", "staff", "business"] as const).map((t) => (
+          {(["bookings", "services", "staff", "business", "finance"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -106,6 +112,7 @@ function AdminPage() {
         {tab === "services" && <ServicesView />}
         {tab === "staff" && <StaffView />}
         {tab === "business" && <BusinessView />}
+        {tab === "finance" && <FinanceView />}
       </main>
     </div>
   );
@@ -122,6 +129,11 @@ function BookingsView() {
 
   const m = useMutation({
     mutationFn: (vars: any) => update({ data: vars }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["bookings"] }),
+  });
+  const amountFn = useServerFn(updateBookingAmount);
+  const amountM = useMutation({
+    mutationFn: (vars: { id: string; amount_paid: number | null }) => amountFn({ data: vars }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["bookings"] }),
   });
 
@@ -237,6 +249,21 @@ function BookingsView() {
                           </a>
                         )}
                       </>
+                    )}
+                    {b.status === "completed" && (
+                      <div className="flex items-center gap-1">
+                        <IndianRupee className="h-3.5 w-3.5 text-muted-foreground" />
+                        <input
+                          type="number"
+                          defaultValue={(b as any).amount_paid ?? ""}
+                          placeholder="amount"
+                          onBlur={(e) => {
+                            const val = e.target.value === "" ? null : parseFloat(e.target.value);
+                            amountM.mutate({ id: b.id, amount_paid: val });
+                          }}
+                          className="w-20 rounded-md border border-border bg-background px-2 py-1 text-xs"
+                        />
+                      </div>
                     )}
                     <select
                       value={b.status}
@@ -450,5 +477,177 @@ function BusinessView() {
       </button>
       {m.isSuccess && <p className="text-sm text-green-700">Saved.</p>}
     </form>
+  );
+}
+
+function FinanceView() {
+  const bookingsFn = useServerFn(listBookings);
+  const expensesFn = useServerFn(listExpenses);
+  const upsertFn = useServerFn(upsertExpense);
+  const deleteFn = useServerFn(deleteExpense);
+  const qc = useQueryClient();
+
+  const bookingsQ = useQuery({ queryKey: ["bookings"], queryFn: () => bookingsFn() });
+  const expensesQ = useQuery({ queryKey: ["expenses"], queryFn: () => expensesFn() });
+
+  const today = new Date();
+  const [month, setMonth] = useState(
+    `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`,
+  );
+
+  const addM = useMutation({
+    mutationFn: (vars: any) => upsertFn({ data: vars }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["expenses"] }),
+  });
+  const delM = useMutation({
+    mutationFn: (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["expenses"] }),
+  });
+
+  const bookings = (bookingsQ.data ?? []) as Booking[];
+  const expenses = (expensesQ.data ?? []) as any[];
+
+  const monthBookings = bookings.filter(
+    (b) => b.status === "completed" && b.booking_date.startsWith(month),
+  );
+  const monthExpenses = expenses.filter((e) => e.expense_date.startsWith(month));
+
+  const revenue = monthBookings.reduce((sum, b) => sum + (Number((b as any).amount_paid) || 0), 0);
+  const totalExpenses = monthExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  const profit = revenue - totalExpenses;
+
+  function handleAddExpense(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = new FormData(e.currentTarget);
+    addM.mutate({
+      expense_date: form.get("expense_date"),
+      category: form.get("category"),
+      amount: parseFloat(form.get("amount") as string),
+      note: form.get("note") || null,
+    });
+    e.currentTarget.reset();
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center gap-3">
+        <label className="text-sm text-muted-foreground">Month:</label>
+        <input
+          type="month"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          className="rounded-md border border-border bg-background px-3 py-1.5 text-sm"
+        />
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Revenue</p>
+          <p className="mt-2 font-serif text-3xl text-green-700">₹{revenue.toLocaleString("en-IN")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{monthBookings.length} completed bookings</p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">Expenses</p>
+          <p className="mt-2 font-serif text-3xl text-red-700">₹{totalExpenses.toLocaleString("en-IN")}</p>
+          <p className="mt-1 text-xs text-muted-foreground">{monthExpenses.length} entries</p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <p className="text-xs uppercase tracking-widest text-muted-foreground">
+            {profit >= 0 ? "Profit" : "Loss"}
+          </p>
+          <p className={`mt-2 font-serif text-3xl ${profit >= 0 ? "text-primary" : "text-red-700"}`}>
+            ₹{Math.abs(profit).toLocaleString("en-IN")}
+          </p>
+        </div>
+      </div>
+
+      {/* Add expense form */}
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <h3 className="font-serif text-lg">Add Expense</h3>
+        <form onSubmit={handleAddExpense} className="mt-4 grid gap-3 sm:grid-cols-5">
+          <input
+            type="date"
+            name="expense_date"
+            defaultValue={format(today, "yyyy-MM-dd")}
+            required
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm sm:col-span-1"
+          />
+          <select
+            name="category"
+            defaultValue="General"
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm sm:col-span-1"
+          >
+            <option>General</option>
+            <option>Products / Supplies</option>
+            <option>Rent</option>
+            <option>Salary</option>
+            <option>Electricity</option>
+            <option>Marketing</option>
+            <option>Other</option>
+          </select>
+          <input
+            type="number"
+            name="amount"
+            placeholder="Amount (₹)"
+            required
+            step="0.01"
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm sm:col-span-1"
+          />
+          <input
+            type="text"
+            name="note"
+            placeholder="Note (optional)"
+            className="rounded-md border border-border bg-background px-3 py-2 text-sm sm:col-span-1"
+          />
+          <button
+            disabled={addM.isPending}
+            className="rounded-full bg-primary px-5 py-2 text-sm text-primary-foreground disabled:opacity-60 sm:col-span-1"
+          >
+            {addM.isPending ? "Adding…" : "Add"}
+          </button>
+        </form>
+      </div>
+
+      {/* Expense list */}
+      <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+        <table className="w-full text-sm">
+          <thead className="bg-secondary/40 text-left text-xs uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="p-3">Date</th>
+              <th className="p-3">Category</th>
+              <th className="p-3">Note</th>
+              <th className="p-3 text-right">Amount</th>
+              <th className="p-3 text-right">—</th>
+            </tr>
+          </thead>
+          <tbody>
+            {monthExpenses.map((e) => (
+              <tr key={e.id} className="border-t border-border">
+                <td className="p-3">{format(new Date(e.expense_date), "MMM d, yyyy")}</td>
+                <td className="p-3">{e.category}</td>
+                <td className="p-3 text-muted-foreground">{e.note}</td>
+                <td className="p-3 text-right text-red-700">₹{Number(e.amount).toLocaleString("en-IN")}</td>
+                <td className="p-3 text-right">
+                  <button
+                    onClick={() => delM.mutate(e.id)}
+                    className="inline-flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground hover:bg-red-50 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {monthExpenses.length === 0 && (
+              <tr>
+                <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                  No expenses for this month
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }
