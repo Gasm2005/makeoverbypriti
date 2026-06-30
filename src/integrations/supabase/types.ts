@@ -14,16 +14,219 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          booking_date: string
+          booking_time: string
+          created_at: string
+          duration_min: number
+          id: string
+          name: string
+          notes: string | null
+          phone: string
+          service_id: string | null
+          service_name: string
+          staff_id: string | null
+          staff_name: string | null
+          status: string
+        }
+        Insert: {
+          booking_date: string
+          booking_time: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          name: string
+          notes?: string | null
+          phone: string
+          service_id?: string | null
+          service_name: string
+          staff_id?: string | null
+          staff_name?: string | null
+          status?: string
+        }
+        Update: {
+          booking_date?: string
+          booking_time?: string
+          created_at?: string
+          duration_min?: number
+          id?: string
+          name?: string
+          notes?: string | null
+          phone?: string
+          service_id?: string | null
+          service_name?: string
+          staff_id?: string | null
+          staff_name?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_staff_id_fkey"
+            columns: ["staff_id"]
+            isOneToOne: false
+            referencedRelation: "staff"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      business_info: {
+        Row: {
+          address: string | null
+          color_accent: string | null
+          color_bg: string | null
+          color_primary: string | null
+          google_reviews_url: string | null
+          hero_image_url: string | null
+          hours: string | null
+          id: string
+          instagram_url: string | null
+          maps_embed_url: string | null
+          name: string
+          phone: string | null
+          tagline: string | null
+          updated_at: string
+          whatsapp: string | null
+        }
+        Insert: {
+          address?: string | null
+          color_accent?: string | null
+          color_bg?: string | null
+          color_primary?: string | null
+          google_reviews_url?: string | null
+          hero_image_url?: string | null
+          hours?: string | null
+          id?: string
+          instagram_url?: string | null
+          maps_embed_url?: string | null
+          name: string
+          phone?: string | null
+          tagline?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Update: {
+          address?: string | null
+          color_accent?: string | null
+          color_bg?: string | null
+          color_primary?: string | null
+          google_reviews_url?: string | null
+          hero_image_url?: string | null
+          hours?: string | null
+          id?: string
+          instagram_url?: string | null
+          maps_embed_url?: string | null
+          name?: string
+          phone?: string | null
+          tagline?: string | null
+          updated_at?: string
+          whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string | null
+          duration_min: number
+          icon: string | null
+          id: string
+          name: string
+          price_from: number | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          icon?: string | null
+          id?: string
+          name: string
+          price_from?: number | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string | null
+          duration_min?: number
+          icon?: string | null
+          id?: string
+          name?: string
+          price_from?: number | null
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      staff: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +353,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin"],
+    },
   },
 } as const
