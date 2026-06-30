@@ -111,12 +111,13 @@
 
 @utility gold-divider {
   position: relative;
-}
-@utility gold-divider::after {
-  content: "";
-  display: block;
-  width: 60px;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gold), transparent);
-  margin: 1rem auto;
+
+  &::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    margin: 1rem auto;
+  }
 }
