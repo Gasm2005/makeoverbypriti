@@ -1,12 +1,25 @@
-import { Crown, Sparkles, Eye, Heart, Camera, Wand2 } from "lucide-react";
-
 const tiles = [
-  { icon: Crown, label: "Bridal Look", tone: "from-[#B76E79]/30 via-[#8a4a52]/20 to-transparent" },
-  { icon: Sparkles, label: "Party Glam", tone: "from-[#D4AF7A]/30 via-[#a87c45]/20 to-transparent" },
-  { icon: Eye, label: "Eye Makeup", tone: "from-[#7a4452]/30 via-[#3a2329]/20 to-transparent" },
-  { icon: Heart, label: "Special Occasion", tone: "from-[#D4AF7A]/25 via-[#B76E79]/20 to-transparent" },
-  { icon: Camera, label: "Photo Ready", tone: "from-[#8a4a52]/30 via-[#D4AF7A]/15 to-transparent" },
-  { icon: Wand2, label: "Hairstyling", tone: "from-[#B76E79]/25 via-[#3a2329]/25 to-transparent" },
+  {
+    src: "https://plus.unsplash.com/premium_photo-1724762178439-1f93ad3f3cb6?q=80&w=1104&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    label: "Bridal Look",
+    big: true,
+  },
+  {
+    src: "https://images.unsplash.com/photo-1550005869-5fca7db35ddb?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    label: "Glam Makeup",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1621691536086-e21b2439c73a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    label: "Special Occasion",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1633029187262-333e004d4224?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fGluZGlhbiUyMEdpcmwlMjBkb2luZyUyMG5haWwlMjBhcnR8ZW58MHx8MHx8fDA%3D",
+    label: "Nail Art",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1519415387722-a1c3bbef716c?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8YmVhdXR5JTIwcGFybG91cnxlbnwwfHwwfHx8MA%3D%3D",
+    label: "At The Salon",
+  },
 ];
 
 export function Gallery() {
@@ -17,39 +30,24 @@ export function Gallery() {
           <p className="text-xs uppercase tracking-[0.4em] text-primary">Gallery</p>
           <h2 className="mt-3 font-serif text-4xl md:text-5xl">Looks &amp; Moments</h2>
           <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-accent to-transparent" />
-          <p className="mt-4 text-sm text-muted-foreground">
-            Real client photos uploading soon — add yours anytime from Admin
-          </p>
         </div>
 
         <div className="mt-12 grid grid-cols-2 gap-4 md:grid-cols-3">
-          {tiles.map(({ icon: Icon, label, tone }, i) => (
+          {tiles.map(({ src, label, big }, i) => (
             <div
               key={i}
               className={`group relative aspect-[4/5] overflow-hidden rounded-2xl bg-[#1A1A1A] shadow-sm transition-transform duration-300 hover:-translate-y-1 hover:shadow-lg ${
-                i === 0 ? "md:col-span-2 md:row-span-2 md:aspect-auto" : ""
+                big ? "md:col-span-2 md:row-span-2 md:aspect-auto" : ""
               }`}
             >
-              {/* Layered soft "bokeh" blobs to mimic a photography placeholder */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${tone}`} />
-              <div className="absolute -left-6 -top-6 h-28 w-28 rounded-full bg-gold/20 blur-2xl" />
-              <div className="absolute -right-8 bottom-0 h-32 w-32 rounded-full bg-primary/25 blur-3xl" />
-              <div
-                className="absolute inset-0 opacity-[0.08]"
-                style={{
-                  backgroundImage:
-                    "radial-gradient(circle, rgba(250,246,241,0.9) 1px, transparent 1px)",
-                  backgroundSize: "20px 20px",
-                }}
+              <img
+                src={src}
+                alt={label}
+                loading="lazy"
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-              <div className="relative flex h-full flex-col items-center justify-center gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-gold/30 bg-black/20 backdrop-blur-sm transition group-hover:scale-110">
-                  <Icon className="h-6 w-6 text-gold" />
-                </div>
-              </div>
-              <span className="absolute bottom-3 left-4 text-xs font-medium uppercase tracking-[0.15em] text-cream/85">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/5 to-transparent" />
+              <span className="absolute bottom-3 left-4 text-xs font-medium uppercase tracking-[0.15em] text-cream/90">
                 {label}
               </span>
             </div>
