@@ -30,8 +30,13 @@ export function Header({ biz }: { biz: BusinessInfo }) {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
-        <a href="#top" className="font-serif text-lg tracking-wide text-cream md:text-xl">
-          {biz.name}
+        <a href="#top" className="flex items-center gap-2.5">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-gold/50 bg-gradient-to-br from-[#B76E79]/30 to-[#D4AF7A]/20 font-serif text-base text-gold">
+            P
+          </span>
+          <span className="font-serif text-base tracking-wide text-cream md:text-lg">
+            {biz.name}
+          </span>
         </a>
 
         <nav className="hidden items-center gap-8 md:flex">
