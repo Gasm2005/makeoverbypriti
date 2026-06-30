@@ -210,6 +210,7 @@ export const updateBusinessInfo = createServerFn({ method: "POST" })
         instagram_url: z.string().nullable().optional(),
         google_reviews_url: z.string().nullable().optional(),
         hours: z.string().nullable().optional(),
+        hero_image_url: z.string().nullable().optional(),
       })
       .parse(d),
   )

@@ -444,6 +444,7 @@ function BusinessView() {
       instagram_url: String(fd.get("instagram_url") ?? ""),
       google_reviews_url: String(fd.get("google_reviews_url") ?? ""),
       hours: String(fd.get("hours") ?? ""),
+      hero_image_url: String(fd.get("hero_image_url") ?? "") || null,
     });
   }
 
@@ -459,6 +460,7 @@ function BusinessView() {
         ["instagram_url", "Instagram URL"],
         ["google_reviews_url", "Google reviews URL"],
         ["maps_embed_url", "Google Maps embed URL"],
+        ["hero_image_url", "Hero background photo URL (leave blank for default design)"],
       ].map(([key, label]) => (
         <label key={key} className="block">
           <span className="text-xs uppercase tracking-widest text-muted-foreground">{label}</span>

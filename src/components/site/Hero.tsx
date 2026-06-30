@@ -4,20 +4,37 @@ import type { BusinessInfo } from "@/lib/types";
 export function Hero({ biz }: { biz: BusinessInfo }) {
   return (
     <section id="top" className="relative min-h-[94vh] overflow-hidden bg-[#1A1A1A]">
-      {/* Layered background — rich gradient + dot texture, no stock imagery */}
+      {/* Background: real photo (set via Admin > Business Info) with a dark
+          gradient overlay for text legibility, or the elegant abstract
+          placeholder when no photo has been uploaded yet. */}
       <div className="absolute inset-0" aria-hidden="true">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#2a161b] via-[#4a2530] to-[#1A1A1A]" />
-        <div className="absolute inset-0 [background-image:radial-gradient(circle_at_15%_15%,rgba(212,175,122,0.35),transparent_40%),radial-gradient(circle_at_85%_25%,rgba(183,110,121,0.4),transparent_45%),radial-gradient(circle_at_60%_85%,rgba(212,175,122,0.18),transparent_50%)]" />
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, rgba(250,246,241,0.9) 1px, transparent 1px)",
-            backgroundSize: "26px 26px",
-          }}
-        />
-        <div className="absolute -right-24 top-1/2 hidden h-[560px] w-[560px] -translate-y-1/2 rounded-full border border-gold/15 md:block" />
-        <div className="absolute -right-10 top-1/2 hidden h-[400px] w-[400px] -translate-y-1/2 rounded-full border border-gold/20 md:block" />
+        {biz.hero_image_url ? (
+          <>
+            <img
+              src={biz.hero_image_url}
+              alt=""
+              className="h-full w-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-charcoal/85 via-charcoal/55 to-charcoal/25" />
+            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/70 via-transparent to-charcoal/15" />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 bg-gradient-to-br from-[#2a161b] via-[#4a2530] to-[#1A1A1A]" />
+            <div className="absolute inset-0 [background-image:radial-gradient(circle_at_15%_15%,rgba(212,175,122,0.35),transparent_40%),radial-gradient(circle_at_85%_25%,rgba(183,110,121,0.4),transparent_45%),radial-gradient(circle_at_60%_85%,rgba(212,175,122,0.18),transparent_50%)]" />
+            <div
+              className="absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle, rgba(250,246,241,0.9) 1px, transparent 1px)",
+                backgroundSize: "26px 26px",
+              }}
+            />
+            <div className="absolute -right-24 top-1/2 hidden h-[560px] w-[560px] -translate-y-1/2 rounded-full border border-gold/15 md:block" />
+            <div className="absolute -right-10 top-1/2 hidden h-[400px] w-[400px] -translate-y-1/2 rounded-full border border-gold/20 md:block" />
+            <div className="absolute inset-0 bg-gradient-to-r from-charcoal/80 via-charcoal/55 to-charcoal/20" />
+          </>
+        )}
       </div>
 
       <div className="relative z-10 mx-auto grid min-h-[94vh] w-full max-w-6xl items-center gap-12 px-6 py-28 md:grid-cols-[1.15fr_0.85fr]">
