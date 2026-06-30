@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
 import { getBusinessInfo, listServices, listStaff } from "@/lib/public.functions";
+import { Header } from "@/components/site/Header";
 import { Hero } from "@/components/site/Hero";
 import { About } from "@/components/site/About";
 import { Services } from "@/components/site/Services";
@@ -58,6 +59,7 @@ function Index() {
   if (!biz) return null;
   return (
     <main className="pb-16 md:pb-0">
+      <Header biz={biz} />
       <Hero biz={biz} />
       <About />
       <Services services={services} />

@@ -1,11 +1,13 @@
-import g1 from "@/assets/gallery-1.jpg";
-import g2 from "@/assets/gallery-2.jpg";
-import g3 from "@/assets/gallery-3.jpg";
-import g4 from "@/assets/gallery-4.jpg";
-import g5 from "@/assets/gallery-5.jpg";
-import g6 from "@/assets/gallery-6.jpg";
+import { Crown, Sparkles, Eye, Heart, Camera, Wand2 } from "lucide-react";
 
-const images = [g1, g2, g3, g4, g5, g6];
+const placeholders = [
+  { icon: Crown, label: "Bridal Look" },
+  { icon: Sparkles, label: "Party Glam" },
+  { icon: Eye, label: "Eye Makeup" },
+  { icon: Heart, label: "Special Occasion" },
+  { icon: Camera, label: "Photo Ready" },
+  { icon: Wand2, label: "Hairstyling" },
+];
 
 export function Gallery() {
   return (
@@ -16,25 +18,24 @@ export function Gallery() {
           <h2 className="mt-3 font-serif text-4xl md:text-5xl">Looks &amp; Moments</h2>
           <div className="mx-auto mt-4 h-px w-16 bg-gradient-to-r from-transparent via-accent to-transparent" />
           <p className="mt-4 text-sm text-muted-foreground">
-            A glimpse of our work · placeholder imagery to be replaced with real photos.
+            A glimpse of our work · photos coming soon — upload real photos via Admin
           </p>
         </div>
         <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-4">
-          {images.map((src, i) => (
+          {placeholders.map(({ icon: Icon, label }, i) => (
             <div
               key={i}
-              className={`overflow-hidden rounded-2xl ${
-                i === 0 ? "md:row-span-2 md:col-span-2" : ""
+              className={`group relative flex aspect-square items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-[#B76E79]/15 via-[#D4AF7A]/10 to-[#1A1A1A]/5 ${
+                i === 0 ? "md:row-span-2 md:col-span-2 md:aspect-auto" : ""
               }`}
             >
-              <img
-                src={src}
-                alt={`Gallery ${i + 1}`}
-                loading="lazy"
-                width={1024}
-                height={1024}
-                className="h-full w-full object-cover transition duration-700 hover:scale-105"
-              />
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(212,175,122,0.25),transparent_60%)]" />
+              <div className="relative flex flex-col items-center gap-2 text-center">
+                <Icon className="h-8 w-8 text-primary/60 transition group-hover:scale-110 md:h-10 md:w-10" />
+                <span className="text-xs font-medium tracking-wide text-muted-foreground">
+                  {label}
+                </span>
+              </div>
             </div>
           ))}
         </div>

@@ -1,17 +1,18 @@
-import { Star, Phone } from "lucide-react";
-import hero from "@/assets/hero.jpg";
+import { Star, Phone, Sparkles } from "lucide-react";
 import type { BusinessInfo } from "@/lib/types";
 
 export function Hero({ biz }: { biz: BusinessInfo }) {
   return (
     <section id="top" className="relative min-h-[92vh] flex items-center overflow-hidden">
-      <img
-        src={hero}
-        alt="Bridal makeup by Priti"
-        width={1920}
-        height={1280}
-        className="absolute inset-0 h-full w-full object-cover object-center"
-      />
+      {/* Elegant abstract placeholder background — replace with a real photo via Admin > Business Info */}
+      <div
+        className="absolute inset-0 bg-gradient-to-br from-[#3a2329] via-[#5c2f36] to-[#1A1A1A]"
+        aria-hidden="true"
+      >
+        <div className="absolute inset-0 opacity-30 [background-image:radial-gradient(circle_at_20%_20%,rgba(212,175,122,0.5),transparent_45%),radial-gradient(circle_at_80%_70%,rgba(183,110,121,0.45),transparent_50%)]" />
+        <Sparkles className="absolute right-[12%] top-[18%] h-10 w-10 text-gold/30" />
+        <Sparkles className="absolute left-[10%] bottom-[20%] h-6 w-6 text-gold/20" />
+      </div>
       <div className="absolute inset-0 bg-gradient-to-r from-charcoal/80 via-charcoal/55 to-charcoal/20" />
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6 py-24 text-cream">
         <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-charcoal/40 px-4 py-1.5 backdrop-blur">
