@@ -1,29 +1,72 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useSuspenseQuery, queryOptions } from "@tanstack/react-query";
+import { getBusinessInfo, listServices, listStaff } from "@/lib/public.functions";
+import { Hero } from "@/components/site/Hero";
+import { About } from "@/components/site/About";
+import { Services } from "@/components/site/Services";
+import { Gallery } from "@/components/site/Gallery";
+import { Booking } from "@/components/site/Booking";
+import { Reviews } from "@/components/site/Reviews";
+import { Contact } from "@/components/site/Contact";
+import { Footer } from "@/components/site/Footer";
+import { MobileBar } from "@/components/site/MobileBar";
+
+const bizQO = queryOptions({ queryKey: ["business"], queryFn: () => getBusinessInfo() });
+const servicesQO = queryOptions({ queryKey: ["services"], queryFn: () => listServices() });
+const staffQO = queryOptions({ queryKey: ["staff"], queryFn: () => listStaff() });
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "Makeover By Priti Academy & Salon — Bridal Makeup in Lucknow" },
+      {
+        name: "description",
+        content:
+          "Premium bridal, party & HD makeup, hair straightening, and makeup academy in Lucknow. 5★ rated. Book your appointment with Priti today.",
+      },
+      { property: "og:title", content: "Makeover By Priti Academy & Salon" },
+      {
+        property: "og:description",
+        content:
+          "Bridal, party, airbrush & HD makeup · Hair straightening · Skincare · Academy classes in Lucknow.",
+      },
     ],
   }),
+  loader: async ({ context }) => {
+    await Promise.all([
+      context.queryClient.ensureQueryData(bizQO),
+      context.queryClient.ensureQueryData(servicesQO),
+      context.queryClient.ensureQueryData(staffQO),
+    ]);
+  },
+  errorComponent: ({ error }) => (
+    <div className="flex min-h-screen items-center justify-center px-6 text-center">
+      <div>
+        <h1 className="font-serif text-2xl">We couldn't load the page</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{error.message}</p>
+      </div>
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-10 text-center">Not found</div>,
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const { data: biz } = useSuspenseQuery(bizQO);
+  const { data: services } = useSuspenseQuery(servicesQO);
+  const { data: staff } = useSuspenseQuery(staffQO);
+  if (!biz) return null;
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="pb-16 md:pb-0">
+      <Hero biz={biz} />
+      <About />
+      <Services services={services} />
+      <Gallery />
+      <Booking services={services} staff={staff} />
+      <Reviews biz={biz} />
+      <Contact biz={biz} />
+      <Footer biz={biz} />
+      <MobileBar biz={biz} />
+    </main>
   );
 }
