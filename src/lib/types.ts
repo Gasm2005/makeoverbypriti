@@ -13,6 +13,10 @@ export type BusinessInfo = {
   color_primary: string | null;
   color_accent: string | null;
   color_bg: string | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  seo_keywords: string | null;
+  og_image_url: string | null;
 };
 
 export type Service = {

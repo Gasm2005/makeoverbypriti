@@ -37,7 +37,7 @@ function AdminPage() {
   const qc = useQueryClient();
   const adminQ = useQuery({ queryKey: ["is-admin"], queryFn: () => isAdminFn() });
   const [tab, setTab] = useState<
-    "bookings" | "services" | "staff" | "business" | "finance" | "gallery"
+    "bookings" | "services" | "staff" | "business" | "finance" | "gallery" | "seo"
   >("bookings");
 
   const claim = useMutation({
@@ -93,7 +93,7 @@ function AdminPage() {
           </button>
         </div>
         <nav className="mx-auto flex max-w-6xl gap-1 overflow-x-auto px-6">
-          {(["bookings", "services", "staff", "gallery", "business", "finance"] as const).map(
+          {(["bookings", "services", "staff", "gallery", "business", "seo", "finance"] as const).map(
             (t) => (
             <button
               key={t}
@@ -116,6 +116,7 @@ function AdminPage() {
         {tab === "staff" && <StaffView />}
         {tab === "gallery" && <GalleryView />}
         {tab === "business" && <BusinessView />}
+        {tab === "seo" && <SeoView />}
         {tab === "finance" && <FinanceView />}
       </main>
     </div>
@@ -745,6 +746,120 @@ function GalleryView() {
             No photos added yet
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function SeoView() {
+  const bizFn = useServerFn(getBusinessInfo);
+  const updateFn = useServerFn(updateBusinessInfo);
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: ["biz-seo"], queryFn: () => bizFn() });
+  const biz = q.data as any;
+
+  const m = useMutation({
+    mutationFn: (vars: any) => updateFn({ data: vars }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["biz-seo"] }),
+  });
+
+  function save(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    m.mutate({
+      seo_title: String(fd.get("seo_title") || ""),
+      seo_description: String(fd.get("seo_description") || ""),
+      seo_keywords: String(fd.get("seo_keywords") || ""),
+      og_image_url: String(fd.get("og_image_url") || "") || null,
+    });
+  }
+
+  if (!biz) return <div className="p-6 text-muted-foreground text-sm">Loading…</div>;
+
+  return (
+    <div className="max-w-2xl space-y-6">
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="font-serif text-lg">SEO Settings</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
+          These fields control how your website appears in Google search results and when shared on WhatsApp, Instagram, etc.
+        </p>
+
+        <form onSubmit={save} className="mt-6 space-y-4">
+          <label className="block">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Page Title (shown in Google & browser tab)
+            </span>
+            <input
+              name="seo_title"
+              defaultValue={biz.seo_title ?? "Makeover By Priti Academy & Salon — Bridal Makeup in Lucknow"}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">Ideal: 50-60 characters</p>
+          </label>
+
+          <label className="block">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Meta Description (shown below title in Google)
+            </span>
+            <textarea
+              name="seo_description"
+              rows={3}
+              defaultValue={biz.seo_description ?? "Premium bridal, party & HD makeup, hair straightening, skincare, and makeup academy in Lucknow. 5★ rated. Book your appointment with Priti today."}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">Ideal: 150-160 characters</p>
+          </label>
+
+          <label className="block">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Keywords (comma separated)
+            </span>
+            <input
+              name="seo_keywords"
+              defaultValue={biz.seo_keywords ?? "bridal makeup lucknow, party makeup lucknow, hair straightening lucknow, makeup academy lucknow, priti salon, best salon lucknow"}
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+          </label>
+
+          <label className="block">
+            <span className="text-xs uppercase tracking-widest text-muted-foreground">
+              Share Image URL (shown when sharing on WhatsApp/Facebook)
+            </span>
+            <input
+              name="og_image_url"
+              defaultValue={biz.og_image_url ?? ""}
+              placeholder="https://... link to your salon photo"
+              className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Recommended: 1200×630px image. Use any public image URL (e.g. from your gallery above).
+            </p>
+          </label>
+
+          <button
+            disabled={m.isPending}
+            className="rounded-full bg-primary px-6 py-2 text-sm text-primary-foreground disabled:opacity-60"
+          >
+            {m.isPending ? "Saving…" : "Save SEO Settings"}
+          </button>
+          {m.isSuccess && (
+            <p className="text-sm text-green-700">Saved! Changes will reflect on next deployment.</p>
+          )}
+        </form>
+      </div>
+
+      {/* Preview */}
+      <div className="rounded-2xl border border-border bg-card p-6">
+        <h3 className="font-serif text-lg mb-4">Google Preview</h3>
+        <div className="rounded-lg border border-border bg-background p-4">
+          <p className="text-xs text-muted-foreground">makeoverbypriti.vercel.app</p>
+          <p className="mt-1 text-base font-medium text-blue-600">
+            {biz.seo_title ?? "Makeover By Priti Academy & Salon — Bridal Makeup in Lucknow"}
+          </p>
+          <p className="mt-1 text-sm text-muted-foreground line-clamp-2">
+            {biz.seo_description ?? "Premium bridal, party & HD makeup, hair straightening, skincare, and makeup academy in Lucknow."}
+          </p>
+        </div>
       </div>
     </div>
   );

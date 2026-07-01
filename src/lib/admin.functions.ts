@@ -241,6 +241,10 @@ export const updateBusinessInfo = createServerFn({ method: "POST" })
         google_reviews_url: z.string().nullable().optional(),
         hours: z.string().nullable().optional(),
         hero_image_url: z.string().nullable().optional(),
+        seo_title: z.string().nullable().optional(),
+        seo_description: z.string().nullable().optional(),
+        seo_keywords: z.string().nullable().optional(),
+        og_image_url: z.string().nullable().optional(),
       })
       .parse(d),
   )
